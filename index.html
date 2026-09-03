@@ -260,6 +260,23 @@
   }
   .note b{color:var(--ink);}
 
+  .target-card{border-color:var(--gold);}
+  .target-result{
+    margin-inline-start:36px;
+    margin-top:14px;
+    font-size:14px;
+    line-height:1.7;
+  }
+  .target-result .big{
+    font-family:'Amiri',serif;
+    font-weight:700;
+    font-size:22px;
+    color:var(--green-deep);
+  }
+  .target-result.achieved{color:var(--green);}
+  .target-result.unreachable{color:var(--red);}
+  .target-result .muted{color:var(--ink-soft);font-size:12.5px;}
+
   footer{
     max-width:640px;margin:26px auto 0;padding:0 18px;
     font-size:12px;color:var(--ink-soft);
@@ -370,6 +387,28 @@
     <div class="status-line" id="statusLine"></div>
   </div>
 
+  <div class="card target-card">
+    <div class="step-label"><span class="step-num">?</span> <span data-i18n="targetLabel"></span></div>
+    <div class="step-sub" data-i18n="targetSub"></div>
+    <div class="field-row">
+      <select id="targetGrade">
+        <option value="" data-i18n="targetPlaceholder"></option>
+        <option value="94">A</option>
+        <option value="90">A-</option>
+        <option value="86">B+</option>
+        <option value="80">B</option>
+        <option value="76">B-</option>
+        <option value="70">C+</option>
+        <option value="66">C</option>
+        <option value="60">C-</option>
+        <option value="57">D+</option>
+        <option value="55">D</option>
+        <option value="40">D-</option>
+      </select>
+    </div>
+    <div id="targetResult" class="target-result"></div>
+  </div>
+
   <div class="note">
     <b data-i18n="noteLabel"></b> <span id="noteBody"></span>
   </div>
@@ -413,6 +452,15 @@ const dict = {
     incomplete: "أكمل الحقول أعلاه لعرض علامتك المتوقعة.",
     noteLabel: "بحسب الأسس:",
     noteBody: "كل مستوى (أول/ثاني/ثالث) يزن 15% من العلامة المئوية — فمن يدرس المستويات الثلاثة يصل مجموعها إلى 45% (مع 20% للامتحان الأوّلي و35% للنهائي = 100%). لاعتماد المجموع النهائي، يُشترط أحد أمرين: أن ينتقل الطالب من مستوى رئيسي إلى مستوى رئيسي أعلى بين الامتحانين (A1→A2→B1→B2→C1)، أو ألا يقل المجموع النهائي عن 55%. عند الانتقال إلى مستوى رئيسي أعلى تُضاف 5 علامات عن كل مستوى يتم تجاوزه (باستثناء الانتقال من B2 إلى C1 وتحديدًا، حيث تُضاف 8 علامات بدلًا من 5) — وقد احتُسبت هذه الإضافة تلقائيًا أعلاه إن وُجدت.",
+    targetLabel: "كم أحتاج في الامتحان التصنيفي النهائي؟",
+    targetSub: "اختر العلامة التي تريدها لنحسب لك أقل مستوى تحتاجه في الامتحان النهائي",
+    targetPlaceholder: "اختر العلامة المستهدفة",
+    targetFillFirst: "أكمل نتيجة الامتحان الأوّلي وعلامات المستويات أعلاه أولًا.",
+    targetNeed: "تحتاج إلى تحقيق مستوى",
+    targetOrHigher: "أو أعلى في الامتحان التصنيفي النهائي.",
+    targetProjected: "المجموع المتوقع في هذه الحالة:",
+    targetAlready: "أنت بالفعل ضمن هذا النطاق حتى بأقل نتيجة ممكنة في الامتحان النهائي.",
+    targetUnreachable: "لا يمكن تحقيق هذه العلامة عبر نتيجة الامتحان النهائي وحدها، حتى لو حصلت على C1. أعلى مجموع ممكن حاليًا هو",
     footer: "أداة غير رسمية لتقدير العلامة استنادًا إلى الأسس المنشورة على موقع دائرة الشؤون القانونية بالجامعة الأردنية. يُرجى تأكيد علامتك الرسمية مع مركز اللغات أو كلية اللغات الأجنبية."
   },
   en: {
@@ -446,6 +494,15 @@ const dict = {
     incomplete: "Fill in the fields above to see your estimated grade.",
     noteLabel: "Per the regulation:",
     noteBody: "Each level (1/2/3) is weighted at 15% of the percentage grade — a student who completes all three levels reaches 45% total (plus 20% for the initial exam and 35% for the final exam = 100%). For this total to be recorded, one of two conditions must be met: the student moves from a lower main level to a higher one between the two exams (A1→A2→B1→B2→C1), or the final total is not below 55%. Moving to a higher main level adds 5 points per level advanced (except moving specifically from B2 to C1, which adds 8 points instead of 5) — this bonus is calculated automatically above when it applies.",
+    targetLabel: "What do I need in the final placement exam?",
+    targetSub: "Pick your target grade and we'll calculate the minimum final exam level you need",
+    targetPlaceholder: "Select target grade",
+    targetFillFirst: "Fill in your initial exam result and level grades above first.",
+    targetNeed: "You need to achieve at least",
+    targetOrHigher: "in the final placement exam.",
+    targetProjected: "Projected total in this case:",
+    targetAlready: "You're already in this range even with the lowest possible final exam result.",
+    targetUnreachable: "This grade isn't reachable through the final exam result alone, even with C1. The highest possible total right now is",
     footer: "This is an unofficial estimation tool based on the regulation published by the University of Jordan's Legal Affairs Department. Please confirm your official grade with the Language Center or the Faculty of Foreign Languages."
   }
 };
@@ -474,6 +531,72 @@ const gradeBadge = document.getElementById('gradeBadge');
 const statusLine = document.getElementById('statusLine');
 const noteBody = document.getElementById('noteBody');
 const footerText = document.getElementById('footerText');
+const targetGradeSel = document.getElementById('targetGrade');
+const targetResultEl = document.getElementById('targetResult');
+
+const finalOptions = [
+  {sub:'A1.1', score:15}, {sub:'A1.2', score:17},
+  {sub:'A2.1', score:20}, {sub:'A2.2', score:22},
+  {sub:'B1.1', score:25}, {sub:'B1.2', score:27},
+  {sub:'B2.1', score:30}, {sub:'B2.2', score:32},
+  {sub:'C1',   score:35}
+];
+
+function bonusFor(iMain, fMain){
+  if(iMain === 'B2' && fMain === 'C1') return 8;
+  const diff = order[fMain] - order[iMain];
+  return diff > 0 ? diff * 5 : 0;
+}
+
+function updateTarget(){
+  const t = dict[lang];
+  const target = targetGradeSel.value;
+  if(!target){ targetResultEl.className = 'target-result'; targetResultEl.innerHTML = ''; return; }
+
+  const iv = initialSel.value;
+  if(!iv){
+    targetResultEl.className = 'target-result unreachable';
+    targetResultEl.textContent = t.targetFillFirst;
+    return;
+  }
+  const [iSub, iScoreStr] = iv.split('|');
+  const iScore = Number(iScoreStr);
+  const iMain = mainLevel(iSub);
+
+  const c1 = lvl1Input.value !== '' && !isNaN(lvl1Input.value) ? Math.max(0, Math.min(100, Number(lvl1Input.value))) * 0.15 : 0;
+  const c2 = lvl2Input.value !== '' && !isNaN(lvl2Input.value) ? Math.max(0, Math.min(100, Number(lvl2Input.value))) * 0.15 : 0;
+  const c3 = lvl3Input.value !== '' && !isNaN(lvl3Input.value) ? Math.max(0, Math.min(100, Number(lvl3Input.value))) * 0.15 : 0;
+  const levelsTotal = c1 + c2 + c3;
+
+  const requiredTotal = Number(target);
+
+  let found = null;
+  let maxTotal = -Infinity;
+  for(const opt of finalOptions){
+    const fMain = mainLevel(opt.sub);
+    const bonus = bonusFor(iMain, fMain);
+    const total = iScore + levelsTotal + opt.score + bonus;
+    if(total > maxTotal) maxTotal = total;
+    if(total >= requiredTotal && found === null){
+      found = {sub: opt.sub, total};
+    }
+  }
+
+  if(found){
+    const lowestTotal = iScore + levelsTotal + finalOptions[0].score + bonusFor(iMain, mainLevel(finalOptions[0].sub));
+    if(lowestTotal >= requiredTotal){
+      targetResultEl.className = 'target-result achieved';
+      targetResultEl.innerHTML = `${t.targetAlready}`;
+    } else {
+      targetResultEl.className = 'target-result achieved';
+      targetResultEl.innerHTML = `${t.targetNeed} <span class="big">${found.sub}</span> ${t.targetOrHigher}<div class="muted">${t.targetProjected} ${found.total.toFixed(2)}</div>`;
+    }
+  } else {
+    targetResultEl.className = 'target-result unreachable';
+    targetResultEl.innerHTML = `${t.targetUnreachable} <span class="big">${maxTotal.toFixed(2)}</span>`;
+  }
+}
+
 const btnAr = document.getElementById('btnAr');
 const btnEn = document.getElementById('btnEn');
 
@@ -519,6 +642,7 @@ function applyLanguage(){
   btnEn.classList.toggle('active', lang === 'en');
 
   update();
+  updateTarget();
 }
 
 btnAr.addEventListener('click', () => { lang = 'ar'; applyLanguage(); });
@@ -607,7 +731,7 @@ function update(){
   }
 }
 
-[initialSel, finalSel, lvl1Input, lvl2Input, lvl3Input].forEach(el => el.addEventListener('input', update));
+[initialSel, finalSel, lvl1Input, lvl2Input, lvl3Input, targetGradeSel].forEach(el => el.addEventListener('input', () => { update(); updateTarget(); }));
 applyLanguage();
 </script>
 
